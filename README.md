@@ -1,23 +1,22 @@
-# Starter kit for a Terraform module
+# VSI Bastion module
 
-This is a Starter kit to help with the creation of Terraform modules. The basic structure of a Terraform module is fairly
-simple and consists of the following basic values:
+IBM Virtual Private Cloud (VPC) comes with an additional layer of security as your workload can be completely hidden from the public internet. There are times, however, when you will want to get into this private network. A common practice is to use a Bastion host to jump into your VPC from a machine outside of the private network. Another option is to install VPN software inside your VPC to extend the secure VPC network to your local network.
 
-- README.md - provides a description of the module
-- main.tf - defiens the logic for the module
-- variables.tf (optional) - defines the input variables for the module
-- outputs.tf (optional) - defines the values that are output from the module
+OpenVPN is a popular VPN software solution that can be easily installed on a server and offer a simple way to reach all the servers in your VPC from your local machine.
 
-Beyond those files, any other content can be added and organized however you see fit. For example, you can add a `scripts/` directory
-that contains shell scripts executed by a `local-exec` `null_resource` in the terraform module. The contents will depend on what your
-module does and how it does it.
+This module deploys OpenVPN inside a VPC Virtual Server Instance (VSI) using Terraform and Ansible.
 
-## Instructions for creating a new module
+<table cellspacing="10" border="0">
+  <tr>
+    <td>
+      <img src="docs/architecture.png" />
+    </td>
+    <td>
+      <img src="docs/openvpn.png" />
+    </td>
+  </tr>
+</table>
 
-1. Update the title and description in the README to match the module you are creating
-2. Fill out the remaining sections in the README template as appropriate
-3. Implement your logic in the in the main.tf, variables.tf, and outputs.tf
-4. Use releases/tags to manage release versions of your module
 
 ## Software dependencies
 
@@ -25,35 +24,30 @@ The module depends on the following software components:
 
 ### Command-line tools
 
-- terraform - v12
-- kubectl
+- terraform - v13
 
 ### Terraform providers
 
-- IBM Cloud provider >= 1.5.3
-- Helm provider >= 1.1.1 (provided by Terraform)
+- IBM Cloud provider >= 1.17
 
 ## Module dependencies
 
 This module makes use of the output from other modules:
 
-- Cluster - github.com/ibm-garage-cloud/terraform-ibm-container-platform.git
-- Namespace - github.com/ibm-garage-clout/terraform-cluster-namespace.git
-- etc
+- VPC - github.com/cloud-native-toolkit/terraform-ibm-vpc
 
 ## Example usage
 
 ```hcl-terraform
-module "dev_tools_argocd" {
-  source = "github.com/ibm-garage-cloud/terraform-tools-argocd.git?ref=v1.0.0"
+module "bastion" {
+  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.0.0"
 
-  cluster_config_file = module.dev_cluster.config_file_path
-  cluster_type        = module.dev_cluster.type
-  app_namespace       = module.dev_cluster_namespaces.tools_namespace_name
-  ingress_subdomain   = module.dev_cluster.ingress_hostname
-  olm_namespace       = module.dev_software_olm.olm_namespace
-  operator_namespace  = module.dev_software_olm.target_namespace
-  name                = "argocd"
+  resource_group_name = var.resource_group_name
+  region              = var.region
+  name_prefix         = var.name_prefix
+  ibmcloud_api_key    = var.ibmcloud_api_key
+  vpc_name            = module.vpc.name
+  subnet_count        = module.vpc.subnet_count
 }
 ```
 
