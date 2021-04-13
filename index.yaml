@@ -1,11 +1,58 @@
 id: github.com/cloud-native-toolkit/terraform-vsi-vpn
-name: ""
+name: vsi-bastion
 type: terraform
-description: ""
+description: Module to provision Basion in a vsi image
 tags:
-  - tools
-  - devops
+  - infrastructure
+  - network
+  - vpc
+  - vpn
 versions:
+  - platforms: []
+    dependencies:
+      - id: vpc
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-ibm-vpc
+            version: ">= 1.0.0"
+    variables:
+      - name: vpc_name
+        moduleRef:
+          id: vpc
+          output: name
+        type: string
+      - name: subnet_count
+        moduleRef:
+          id: vpc
+          output: subnet_count
+        type: string
+      - name: resource_group_name
+        scope: global
+        type: string
+      - name: region
+        scope: global
+        type: string
+      - name: name_prefix
+        scope: global
+        type: string
+      - name: ibmcloud_api_key
+        scope: global
+        type: string
+      - name: tags
+        scope: module
+        type: string
+      - name: openvpn_server_network
+        scope: ignore
+        type: string
+    version: v0.0.1
+    outputs:
+      - name: output vpc_name {   value = data.ibm_is_vpc.vpc.name }
+        description: output vpc_name {   value = data.ibm_is_vpc.vpc.name }
+      - name: output bastion_ip {   value = module.bastion.bastion_public_ip }
+        description: output bastion_ip {   value = module.bastion.bastion_public_ip }
+      - name: output bastion_private_ip {   value = module.bastion.bastion_private_ip }
+        description: output bastion_private_ip {   value = module.bastion.bastion_private_ip }
+      - name: 'output instance_ips {   value = [     for instance in local.instances : instance.primary_network_interface.0.primary_ipv4_address   ] }'
+        description: 'output instance_ips {   value = [     for instance in local.instances : instance.primary_network_interface.0.primary_ipv4_address   ] }'
   - platforms:
       - kubernetes
       - ocp3
@@ -27,28 +74,3 @@ versions:
     #          version: ">= 1.6.0"
     variables: []
     version: v0.0.0
-#    - name: cluster_type
-#      moduleRef:
-#        id: cluster
-#        output: type_code
-#    - name: cluster_ingress_hostname
-#      moduleRef:
-#        id: cluster
-#        output: ingress_hostname
-#    - name: cluster_config_file
-#      moduleRef:
-#        id: cluster
-#        output: config_file_path
-#    - name: tls_secret_name
-#      moduleRef:
-#        id: cluster
-#        output: tls_secret_name
-#    - name: releases_namespace
-#      moduleRef:
-#        id: namespace
-#        output: name
-#        discriminator: tools
-#    - name: icon_url
-#      moduleRef:
-#        id: dashboard
-#        output: base_icon_url
