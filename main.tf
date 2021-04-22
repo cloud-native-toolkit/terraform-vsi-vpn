@@ -1,19 +1,15 @@
 
-data ibm_resource_group group {
-  name = var.resource_group_name
-}
-
 locals {
-  prefix_name    = lower(replace(var.name_prefix != "" ? var.name_prefix : var.resource_group_name, "_", "-"))
-  ssh_key_ids    = [ibm_is_ssh_key.generated_key.id]
-  subnets        = data.ibm_is_subnet.vpc_subnet
-  bastion_subnet = local.subnets.0
-  instances      = module.vsi-instance.instances
+  vpc_id           = data.ibm_is_vpc.vpc.id
+  name             = "${var.vpc_name}-openvpn"
+  attachment_count = var.subnet_count * var.instance_count
+  tmp_attachments  = tolist(setproduct(module.openvpn-server[*].bastion_maintenance_group_id, var.instance_network_ids))
+  attachments      = [for val in local.tmp_attachments: {security_group_id = val[0], network_interface_id = val[1]}]
 }
 
 resource null_resource print-vpc_name {
   provisioner "local-exec" {
-    command = "echo ${var.vpc_name}"
+    command = "echo 'VPC name: ${var.vpc_name}'"
   }
 }
 
@@ -24,79 +20,53 @@ data ibm_is_vpc vpc {
   name           = var.vpc_name
 }
 
-data ibm_is_subnet vpc_subnet {
-  count = var.subnet_count
-
-  identifier = data.ibm_is_vpc.vpc.subnets[count.index].id
-}
-
-resource tls_private_key ssh {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-# generate ssh key
-resource ibm_is_ssh_key generated_key {
-  name           = "${local.prefix_name}-${var.region}-key"
-  public_key     = tls_private_key.ssh.public_key_openssh
-  resource_group = data.ibm_resource_group.group.id
-  tags           = concat(var.tags, ["vpc"])
-}
-
-# create the vsi instance
-module vsi-instance {
-  source = "./submodules/vsi-instance"
-
-  name              = "${local.prefix_name}-bastion-instance"
-  resource_group_id = data.ibm_resource_group.group.id
-  vpc_id            = data.ibm_is_vpc.vpc.id
-  vpc_subnets       = local.subnets
-  ssh_key_ids       = local.ssh_key_ids
-  tags              = concat(var.tags, ["instance"])
-}
-
-module "bastion" {
+# The open vpn server is installed into a bastion server
+module openvpn-server {
   source  = "we-work-in-the-cloud/vpc-bastion/ibm"
   version = "0.0.5"
 
-  name              = "${local.prefix_name}-bastion"
-  resource_group_id = data.ibm_resource_group.group.id
+  count = var.subnet_count
+
+  name              = "${local.name}-${format("%02s", count.index)}"
+  resource_group_id = var.resource_group_id
   vpc_id            = data.ibm_is_vpc.vpc.id
-  subnet_id         = local.bastion_subnet.id
-  ssh_key_ids       = local.ssh_key_ids
-  tags              = concat(var.tags, ["bastion"])
+  subnet_id         = var.subnets[count.index].id
+  ssh_key_ids       = [var.ssh_key_id]
+  tags              = var.tags
+  init_script       = file("${path.module}/scripts/instance-init.sh")
+  image_name        = var.image_name
+  profile_name      = var.profile_name
+  allow_ssh_from    = var.allow_ssh_from
 }
 
-# open the VPN port on the bastion
-resource ibm_is_security_group_rule vpn {
-  group     = module.bastion.bastion_security_group_id
-  direction = "inbound"
-  remote    = "0.0.0.0/0"
-  udp {
-    port_min = 65000
-    port_max = 65000
+resource null_resource setup_openvpn {
+  provisioner "file" {
+    source      = "${path.module}/scripts/automate_ovpn_centos7-vpn.sh"
+    destination = "/usr/local/bin/automate_ovpn_centos7-vpn.sh"
+  }
+
+  count = var.subnet_count
+  depends_on = [module.openvpn-server]
+
+  connection {
+    type        = "ssh"
+    user        = "root"
+    password    = ""
+    private_key = var.ssh_private_key
+    host        = module.openvpn-server[count.index].bastion_public_ip
+  }
+
+  provisioner "remote-exec" {
+    inline     = [
+      "chmod +x /usr/local/bin/automate_ovpn_centos7-vpn.sh",
+      "/usr/local/bin/automate_ovpn_centos7-vpn.sh"
+    ]
   }
 }
 
-#
-# Allow all hosts created by this script to be accessible by the bastion
-#
-resource "ibm_is_security_group_network_interface_attachment" "under_maintenance" {
-  count = length(local.instances)
+resource ibm_is_security_group_network_interface_attachment under_maintenance {
+  count = local.attachment_count
 
-  network_interface = local.instances[count.index].primary_network_interface.0.id
-  security_group    = module.bastion.bastion_maintenance_group_id
-}
-
-#
-# Ansible playbook to install OpenVPN
-#
-module ansible {
-  source = "./submodules/ansible"
-
-  bastion_ip             = module.bastion.bastion_public_ip
-  instances              = local.instances
-  subnets                = local.subnets
-  private_key_pem        = tls_private_key.ssh.private_key_pem
-  openvpn_server_network = var.openvpn_server_network
+  security_group    = local.attachments[count.index].security_group_id
+  network_interface = local.attachments[count.index].network_interface_id
 }

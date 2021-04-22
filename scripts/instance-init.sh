@@ -1,16 +1,17 @@
 #!/bin/bash
 # disable the auto update
-systemctl stop apt-daily.service
-systemctl kill --kill-who=all apt-daily.service
+#systemctl stop apt-daily.service
+#systemctl kill --kill-who=all apt-daily.service
 
 # wait until `apt-get updated` has been killed
-while ! (systemctl list-units --all apt-daily.service | egrep -q '(dead|failed)')
-do
-  sleep 1;
-done
+#while ! (systemctl list-units --all apt-daily.service | egrep -q '(dead|failed)')
+#do
+#  sleep 1;
+#done
 
-apt-get update
-apt-get install -y netplan
+#apt-get update
+#apt-get install -y netplan
+touch /etc/netplan/99-custom-dns.yaml
 
 cat > /etc/netplan/99-custom-dns.yaml << EOF
 network:
@@ -23,7 +24,7 @@ network:
         use-dns: false
 EOF
 
-netplan apply
+#netplan apply
 
 cat >> /etc/dhcp/dhclient.conf << EOF
 
