@@ -41,7 +41,7 @@ versions:
     - name: subnet_count
       moduleRef:
         id: subnets
-        output: subnet_count
+        output: count
     - name: subnets
       moduleRef:
         id: subnets
