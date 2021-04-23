@@ -61,7 +61,7 @@ versions:
     - name: instance_network_ids
       moduleRef:
         id: bastion
-        output: instance_network_ids
+        output: network_interface_ids
     - name: region
       scope: global
     - name: ibmcloud_api_key
