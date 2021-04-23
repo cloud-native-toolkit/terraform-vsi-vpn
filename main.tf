@@ -41,8 +41,8 @@ module openvpn-server {
 
 resource null_resource setup_openvpn {
   provisioner "file" {
-    source      = "${path.module}/scripts/automate_ovpn_centos7-vpn.sh"
-    destination = "/usr/local/bin/automate_ovpn_centos7-vpn.sh"
+    source      = "${path.module}/scripts/openvpn-config.sh"
+    destination = "/usr/local/bin/openvpn-config.sh"
   }
 
   count = var.subnet_count
@@ -58,8 +58,8 @@ resource null_resource setup_openvpn {
 
   provisioner "remote-exec" {
     inline     = [
-      "chmod +x /usr/local/bin/automate_ovpn_centos7-vpn.sh",
-      "/usr/local/bin/automate_ovpn_centos7-vpn.sh"
+      "chmod +x /usr/local/bin/openvpn-config.sh",
+      "openvpn-config.sh"
     ]
   }
 }
