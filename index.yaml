@@ -76,7 +76,7 @@ versions:
       - name: instance_network_ids
         moduleRef:
           id: bastion
-          output: instance_network_ids
+          output: network_interface_ids
         type: list(string)
         description: The list of network interface ids for the Bastion/jump box servers.
       - name: region
