@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         platform: [ocp4_latest]
-      #      max-parallel: 1
+    #      max-parallel: 1
       fail-fast: false
 
     env:
@@ -46,7 +46,6 @@ jobs:
         env:
           TF_VAR_ibmcloud_api_key: ${{ secrets.IBMCLOUD_API_KEY }}
           IBMCLOUD_API_KEY: ${{ secrets.IBMCLOUD_API_KEY }}
-
 
   release:
     #    if: ${{ github.event_name == 'push' }}
