@@ -9,28 +9,70 @@ tags:
 versions:
 - platforms: []
   dependencies:
+    - id: resource_group
+      refs:
+        - source: github.com/cloud-native-toolkit/terraform-ibm-resource-group
+          version: ">= 1.0.0"
     - id: vpc
       refs:
         - source: github.com/cloud-native-toolkit/terraform-ibm-vpc
           version: ">= 1.0.0"
+    - id: subnets
+      refs:
+        - source: github.com/cloud-native-toolkit/terraform-ibm-vpc-subnets
+          version: ">= 1.0.0"
+    - id: vpcssh
+      refs:
+        - source: github.com/cloud-native-toolkit/terraform-ibm-vpc-ssh
+          version: ">= 1.0.0"
+    - id: bastion
+      refs:
+        - source: github.com/cloud-native-toolkit/terraform-vsi-bastion
+          version: ">= 1.0.0"
   variables:
+    - name: resource_group_id
+      moduleRef:
+        id: resource_group
+        output: id
     - name: vpc_name
       moduleRef:
         id: vpc
         output: name
     - name: subnet_count
       moduleRef:
-        id: vpc
+        id: subnets
         output: subnet_count
-    - name: resource_group_name
-      scope: global
+    - name: subnets
+      moduleRef:
+        id: subnets
+        output: subnets
+    - name: ssh_key_id
+      moduleRef:
+        id: vpcssh
+        output: id
+    - name: ssh_private_key
+      moduleRef:
+        id: vpcssh
+        output: private_key
+    - name: instance_count
+      moduleRef:
+        id: bastion
+        output: instance_count
+    - name: instance_network_ids
+      moduleRef:
+        id: bastion
+        output: instance_network_ids
     - name: region
-      scope: global
-    - name: name_prefix
       scope: global
     - name: ibmcloud_api_key
       scope: global
     - name: tags
       scope: module
-    - name: openvpn_server_network
+    - name: image_name
+      scope: ignore
+    - name: profile_name
+      scope: ignore
+    - name: allow_ssh_from
+      scope: ignore
+    - name: security_group_rules
       scope: ignore
