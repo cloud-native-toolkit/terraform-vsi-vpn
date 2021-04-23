@@ -1,6 +1,6 @@
-name: vsi-bastion
+name: vsi-vpn
 type: terraform
-description: Module to provision Basion in a vsi image
+description: Module to provision OpenVPN into a Virtual Private Cloud Virtual Server Instance
 tags:
     - infrastructure
     - network
