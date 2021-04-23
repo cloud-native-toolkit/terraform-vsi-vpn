@@ -15,18 +15,18 @@ variable "ibmcloud_api_key" {
 
 variable "tags" {
   type        = list(string)
-  description = "List of tags"
+  description = "The list of tags that will be applied to the OpenVPN vsi instances."
   default     = []
 }
 
 variable "vpc_name" {
   type        = string
-  description = "The name of the existing VPC instance"
+  description = "The name of the existing VPC instance where the OpenVPN instance(s) will be provisioned."
 }
 
 variable "subnet_count" {
   type        = number
-  description = "The number of subnets on the vpc instance"
+  description = "The number of subnets on the vpc instance that will be used for the OpenVPN instance(s)"
 }
 
 variable "subnets" {
@@ -47,101 +47,50 @@ variable "ssh_private_key" {
 variable "image_name" {
   type        = string
   default     = "ibm-centos-7-9-minimal-amd64-2"
-  description = "Name of the image to use for the bastion instance"
+  description = "Name of the image to use for the OpenVPN instance"
 }
 
 variable "profile_name" {
   type        = string
-  description = "Instance profile to use for the bastion instance"
+  description = "Virtual Server Instance profile to use for the OpenVPN instance"
   default     = "cx2-2x4"
-}
-
-variable "init_script" {
-  type        = string
-  default     = ""
-  description = "Script to run during the instance initialization. Defaults to an Ubuntu specific script when set to empty"
 }
 
 variable "allow_ssh_from" {
   type        = string
-  description = "An IP address, a CIDR block, or a single security group identifier to allow incoming SSH connection to the bastion"
+  description = "An IP address, a CIDR block, or a single security group identifier to allow incoming SSH connection to the OpenVPN instance"
   default     = "0.0.0.0/0"
 }
 
 variable "security_group_rules" {
-  # type = list(object({
-  #   name=string,
-  #   direction=string,
-  #   remote=optional(string),
-  #   ip_version=optional(string),
-  #   tcp=optional(object({
-  #     port_min=number,
-  #     port_max=number
-  #   })),
-  #   udp=optional(object({
-  #     port_min=number,
-  #     port_max=number
-  #   })),
-  #   icmp=optional(object({
-  #     type=number,
-  #     code=optional(number)
-  #   })),
-  # }))
-  description = "List of security group rules to set on the bastion security group in addition to the SSH rules"
-  default = [
-    {
-      name      = "http_outbound"
-      direction = "outbound"
-      remote    = "0.0.0.0/0"
-      tcp = {
-        port_min = 80
-        port_max = 80
-      }
-    },
-    {
-      name      = "https_outbound"
-      direction = "outbound"
-      remote    = "0.0.0.0/0"
-      tcp = {
-        port_min = 443
-        port_max = 443
-      }
-    },
-    {
-      name      = "dns_outbound"
-      direction = "outbound"
-      remote    = "0.0.0.0/0"
-      udp = {
-        port_min = 53
-        port_max = 53
-      }
-    },
-    {
-      name      = "icmp_outbound"
-      direction = "outbound"
-      remote    = "0.0.0.0/0"
-      icmp = {
-        type = 8
-      }
-    },
-    {
-      name      = "vpn"
-      direction = "inbound"
-      remote    = "0.0.0.0/0"
-      udp = {
-        port_min = 65000
-        port_max = 65000
-      }
-    }
-  ]
+  type = list(object({
+    name=string,
+    direction=string,
+    remote=optional(string),
+    ip_version=optional(string),
+    tcp=optional(object({
+      port_min=number,
+      port_max=number
+    })),
+    udp=optional(object({
+      port_min=number,
+      port_max=number
+    })),
+    icmp=optional(object({
+      type=number,
+      code=optional(number)
+    })),
+  }))
+  description = "List of security group rules to set on the OpenVPN security group in addition to inbound SSH and VPC and outbound DNS, ICMP, and HTTP(s) rules"
+  default = []
 }
 
 variable "instance_count" {
   type        = number
-  description = "The number of jump box instances routable by the OpenVPN server"
+  description = "The number of Bastion/jump box instances routable by the OpenVPN server."
 }
 
 variable "instance_network_ids" {
   type        = list(string)
-  description = "The list of jump box network instance ids"
+  description = "The list of network interface ids for the Bastion/jump box servers."
 }
