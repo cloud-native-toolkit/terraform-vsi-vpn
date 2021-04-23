@@ -46,7 +46,7 @@ versions:
       - name: subnet_count
         moduleRef:
           id: subnets
-          output: subnet_count
+          output: count
         type: number
         description: The number of subnets on the vpc instance that will be used for the OpenVPN instance(s)
       - name: subnets
