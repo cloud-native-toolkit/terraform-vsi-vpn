@@ -8,5 +8,5 @@ module "openvpn-subnets" {
   acl_id            = module.vpc.acl_id
   gateways          = module.gateways.gateways
   _count            = 1
-  label             = "bastion"
+  label             = "openvpn"
 }
