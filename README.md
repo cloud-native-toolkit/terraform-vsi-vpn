@@ -113,6 +113,11 @@ Provide the contents of these files as input to the `private_key` and `public_ke
 
 ### Getting the public ip of the OpenVPN server
 
+1. Open the Resources view on the IBM Cloud console - https://cloud.ibm.com/resources
+2. Expand the *VPC Infrastructure* section.
+3. Find the OpenVPN virtual server instance in the list and click on it. It will have a suffix of `openvpn-00`.
+4. In the *Network interfaces* section at the bottom of the page, take note of the *Floating ip*. This is the public ip that can be used to access the OpenVPN server.
+
 ### Adding users to the OpenVPN server
 
 1. Using the public ip of the OpenVPN server and the private key used to provision OpenVPN, establish a ssh session with the OpenVPN server:
@@ -131,7 +136,13 @@ Provide the contents of these files as input to the `private_key` and `public_ke
 4.	When prompted to setup password for the client select option 2 - "Use a password for the client".
 5. Enter the VPN password for the user.
 6. The OpenVPN server authentication key file for the user is created and stored under directory /root/{Client Name}.ovpn
-7. Copy the file contents and share provide it to the user.
+7. Either exit the shell or open another terminal window.
+8. Secure copy (scp) the file to your local machine with the following command:
+
+    ```shell
+    scp -i ${private_key_file} root@${openvpn_ip}:/root/{Client Name}.ovpn .
+    ```
+9. Share the file with the OpenVPN user.
    
 ### Connecting the VPN client
 
