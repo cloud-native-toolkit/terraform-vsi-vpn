@@ -81,6 +81,15 @@ module openvpn-server {
         port_min = 65000
         port_max = 65000
       }
+    },
+    {
+      name      = "openvpn"
+      direction = "inbound"
+      remote    = "0.0.0.0/0"
+      udp = {
+        port_min = 1194
+        port_max = 1194
+      }
     }
   ])
 }
