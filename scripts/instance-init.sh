@@ -39,3 +39,12 @@ EOF
 
 dhclient -v -r; dhclient -v
 systemd-resolve --flush-caches
+
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+# sysctl net.ipv4.conf.all.forwarding=1
+# sysctl net.ipv4.conf.default.forwarding=1
+# sysctl net.ipv4.conf.eth0.forwarding=1
+# sysctl net.ipv4.conf.lo.forwarding=1
+# sysctl net.ipv4.conf.tun0.forwarding=1
+# sysctl net.ipv4.ip_forward=1
