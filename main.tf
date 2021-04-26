@@ -29,6 +29,7 @@ module openvpn-server {
 
   name                 = "${local.name}-${format("%02s", count.index)}"
   resource_group_id    = var.resource_group_id
+  
   vpc_id               = data.ibm_is_vpc.vpc.id
   subnet_id            = var.subnets[count.index].id
   ssh_key_ids          = [var.ssh_key_id]
@@ -80,9 +81,9 @@ resource null_resource setup_openvpn {
   }
 }
 
-resource ibm_is_security_group_network_interface_attachment under_maintenance {
-  count = local.attachment_count
+# resource ibm_is_security_group_network_interface_attachment under_maintenance {
+#   count = local.attachment_count
 
-  security_group    = local.attachments[count.index].security_group_id
-  network_interface = local.attachments[count.index].network_interface_id
-}
+#   security_group    = local.attachments[count.index].security_group_id
+#   network_interface = local.attachments[count.index].network_interface_id
+# }
