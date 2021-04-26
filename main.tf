@@ -81,9 +81,9 @@ resource null_resource setup_openvpn {
   }
 }
 
-# resource ibm_is_security_group_network_interface_attachment under_maintenance {
-#   count = local.attachment_count
+resource ibm_is_security_group_network_interface_attachment under_maintenance {
+  count = local.attachment_count
 
-#   security_group    = local.attachments[count.index].security_group_id
-#   network_interface = local.attachments[count.index].network_interface_id
-# }
+  security_group    = local.attachments[count.index].security_group_id
+  network_interface = local.attachments[count.index].network_interface_id
+}
