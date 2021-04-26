@@ -29,6 +29,7 @@ module openvpn-server {
 
   name                 = "${local.name}-${format("%02s", count.index)}"
   resource_group_id    = var.resource_group_id
+  
   vpc_id               = data.ibm_is_vpc.vpc.id
   subnet_id            = var.subnets[count.index].id
   ssh_key_ids          = [var.ssh_key_id]

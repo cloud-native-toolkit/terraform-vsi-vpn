@@ -119,6 +119,7 @@ function installUnbound() {
 			sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
 			sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
 			sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
+			
 
 		elif [[ $OS == "fedora" ]]; then
 			dnf install -y unbound
@@ -205,6 +206,7 @@ access-control: fd42:42:42:42::/112 allow' >>/etc/unbound/openvpn.conf
 
 	systemctl enable unbound
 	systemctl restart unbound
+	echo 1 > /proc/sys/net/ipv4/ip_forward
 }
 
 function installQuestions() {
@@ -897,7 +899,8 @@ verb 3" >>/etc/openvpn/server.conf
 	mkdir -p /var/log/openvpn
 
 	# Enable routing
-	echo 'net.ipv4.ip_forward=1' >/etc/sysctl.d/99-openvpn.conf
+	echo 'net.ipv4.ip_forward=1' > /etc/sysctl.d/99-openvpn.conf
+	echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.d/99-sysctl.conf 
 	if [[ $IPV6_SUPPORT == 'y' ]]; then
 		echo 'net.ipv6.conf.all.forwarding=1' >>/etc/sysctl.d/99-openvpn.conf
 	fi
