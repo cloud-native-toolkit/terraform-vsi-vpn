@@ -40,7 +40,7 @@ module openvpn-server {
   allow_ssh_from       = var.allow_ssh_from
   security_group_rules = concat(var.security_group_rules, [
     {
-      name      = "internet1"
+      name      = "http"
       direction = "outbound"
       remote    = "0.0.0.0/0"
       TCP = {
@@ -49,7 +49,7 @@ module openvpn-server {
       }
     },
     {
-      name      = "internet2"
+      name      = "https"
       direction = "outbound"
       remote    = "0.0.0.0/0"
       TCP = {
@@ -58,7 +58,7 @@ module openvpn-server {
       }
     },
     {
-      name      = "everything"
+      name      = "private-network"
       direction = "outbound"
       remote    = "10.0.0.0/0"
     },
