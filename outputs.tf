@@ -1,5 +1,5 @@
 output "ids" {
-  value       = module.openvpn-server[*].bastion_id
+  value       = module.openvpn-server.ids
   description = "ID of the OpenVPN virtual server instance"
 }
 
