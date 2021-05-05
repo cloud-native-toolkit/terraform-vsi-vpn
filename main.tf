@@ -31,7 +31,7 @@ module "openvpn-server" {
   vpc_subnet_count     = var.subnet_count
   vpc_subnets          = var.subnets
   profile_name         = var.profile_name
-  ssh_key_ids          = [var.ssh_key_id]
+  ssh_key_id           = var.ssh_key_id
   flow_log_cos_bucket_name = var.flow_log_cos_bucket_name
   kms_key_crn          = var.kms_key_crn
   kms_enabled          = var.kms_enabled
