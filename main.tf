@@ -21,7 +21,7 @@ data ibm_is_vpc vpc {
 }
 
 module "openvpn-server" {
-  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.3.1"
+  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.3.2"
 
   resource_group_id    = var.resource_group_id
   region               = var.region
@@ -29,6 +29,7 @@ module "openvpn-server" {
   vpc_name             = var.vpc_name
   vpc_subnet_count     = var.subnet_count
   vpc_subnets          = var.subnets
+  image_name           = var.image_name
   profile_name         = var.profile_name
   ssh_key_id           = var.ssh_key_id
   flow_log_cos_bucket_name = var.flow_log_cos_bucket_name
