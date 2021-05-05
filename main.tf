@@ -3,7 +3,7 @@ locals {
   vpc_id           = data.ibm_is_vpc.vpc.id
   name             = "${var.vpc_name}-openvpn"
   attachment_count = var.subnet_count * var.instance_count
-  tmp_attachments  = tolist(setproduct(module.openvpn-server[*].bastion_maintenance_group_id, var.instance_network_ids))
+  tmp_attachments  = tolist(setproduct([module.openvpn-server.maintenance_security_group_id], var.instance_network_ids))
   attachments      = [for val in local.tmp_attachments: {security_group_id = val[0], network_interface_id = val[1]}]
 }
 
@@ -100,9 +100,9 @@ resource null_resource setup_openvpn {
   }
 }
 
-//resource ibm_is_security_group_network_interface_attachment under_maintenance {
-//  count = local.attachment_count
-//
-//  security_group    = local.attachments[count.index].security_group_id
-//  network_interface = local.attachments[count.index].network_interface_id
-//}
+resource ibm_is_security_group_network_interface_attachment under_maintenance {
+  count = local.attachment_count
+
+  security_group    = local.attachments[count.index].security_group_id
+  network_interface = local.attachments[count.index].network_interface_id
+}
