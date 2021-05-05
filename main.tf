@@ -3,7 +3,7 @@ locals {
   vpc_id           = data.ibm_is_vpc.vpc.id
   name             = "${var.vpc_name}-openvpn"
   attachment_count = var.subnet_count * var.instance_count
-  tmp_attachments  = tolist(setproduct(module.openvpn-server[*].bastion_maintenance_group_id, var.instance_network_ids))
+  tmp_attachments  = tolist(setproduct([module.openvpn-server.maintenance_security_group_id], var.instance_network_ids))
   attachments      = [for val in local.tmp_attachments: {security_group_id = val[0], network_interface_id = val[1]}]
 }
 
@@ -20,24 +20,26 @@ data ibm_is_vpc vpc {
   name           = var.vpc_name
 }
 
-# The open vpn server is installed into a bastion server
-module openvpn-server {
-  source  = "we-work-in-the-cloud/vpc-bastion/ibm"
-  version = "0.0.7"
+module "openvpn-server" {
+  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.3.2"
 
-  count = var.subnet_count
-
-  name                 = "${local.name}-${format("%02s", count.index)}"
   resource_group_id    = var.resource_group_id
-  
-  vpc_id               = data.ibm_is_vpc.vpc.id
-  subnet_id            = var.subnets[count.index].id
-  ssh_key_ids          = [var.ssh_key_id]
-  tags                 = var.tags
-  init_script          = file("${path.module}/scripts/instance-init.sh")
+  region               = var.region
+  ibmcloud_api_key     = var.ibmcloud_api_key
+  vpc_name             = var.vpc_name
+  vpc_subnet_count     = var.subnet_count
+  vpc_subnets          = var.subnets
   image_name           = var.image_name
   profile_name         = var.profile_name
+  ssh_key_id           = var.ssh_key_id
+  flow_log_cos_bucket_name = var.flow_log_cos_bucket_name
+  kms_key_crn          = var.kms_key_crn
+  kms_enabled          = var.kms_enabled
+  init_script          = file("${path.module}/scripts/instance-init.sh")
+  create_public_ip     = true
   allow_ssh_from       = var.allow_ssh_from
+  tags                 = var.tags
+  label                = "vpn"
   security_group_rules = concat(var.security_group_rules, [
     {
       name      = "http"
@@ -88,7 +90,7 @@ resource null_resource setup_openvpn {
     user        = "root"
     password    = ""
     private_key = var.ssh_private_key
-    host        = module.openvpn-server[count.index].bastion_public_ip
+    host        = module.openvpn-server.public_ips[count.index]
   }
 
   provisioner "remote-exec" {
