@@ -18,7 +18,22 @@ output "public_ips" {
   description = "Public IP address of the OpenVPN virtual server instance"
 }
 
-output "security_group_ids" {
+output "security_group_id" {
+  description = "The id of the security group that was created"
   value       = module.openvpn-server.security_group_id
-  description = "ID of the security group assigned to the OpenVPN interface"
+}
+
+output "security_group" {
+  description = "The security group that was created"
+  value       = module.openvpn-server.security_group
+}
+
+output "maintenance_security_group_id" {
+  description = "The id of the security group that was created"
+  value       = module.openvpn-server.maintenance_security_group_id
+}
+
+output "maintenance_security_group" {
+  description = "The security group that was created"
+  value       = module.openvpn-server.maintenance_security_group
 }

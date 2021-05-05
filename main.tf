@@ -20,9 +20,8 @@ data ibm_is_vpc vpc {
   name           = var.vpc_name
 }
 
-
 module "openvpn-server" {
-  source = "github.com/cloud-native-toolkit/terraform-ibm-vpc-vsi.git?ref=v1.2.2"
+  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.3.0"
 
   resource_group_id    = var.resource_group_id
   region               = var.region
