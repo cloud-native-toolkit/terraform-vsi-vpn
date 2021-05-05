@@ -9,21 +9,16 @@ output "count" {
 }
 
 output "private_ips" {
-  value       = module.openvpn-server[*].bastion_private_ip
+  value       = module.openvpn-server.private_ips
   description = "Private IP address of the OpenVPN virtual server instance"
 }
 
 output "public_ips" {
-  value       = module.openvpn-server[*].bastion_public_ip
+  value       = module.openvpn-server.public_ips
   description = "Public IP address of the OpenVPN virtual server instance"
 }
 
 output "security_group_ids" {
-  value       = module.openvpn-server[*].bastion_security_group_id
+  value       = module.openvpn-server.security_group_id
   description = "ID of the security group assigned to the OpenVPN interface"
-}
-
-output "maintenance_security_group_ids" {
-  value       = module.openvpn-server[*].bastion_maintenance_group_id
-  description = "ID of the security group used to allow connection from OpenVPN to your bastion instances"
 }

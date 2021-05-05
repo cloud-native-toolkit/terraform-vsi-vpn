@@ -20,24 +20,26 @@ data ibm_is_vpc vpc {
   name           = var.vpc_name
 }
 
-# The open vpn server is installed into a bastion server
-module openvpn-server {
-  source  = "we-work-in-the-cloud/vpc-bastion/ibm"
-  version = "0.0.7"
 
-  count = var.subnet_count
+module "openvpn-server" {
+  source = "github.com/cloud-native-toolkit/terraform-ibm-vpc-vsi.git?ref=v1.2.2"
 
-  name                 = "${local.name}-${format("%02s", count.index)}"
   resource_group_id    = var.resource_group_id
-  
-  vpc_id               = data.ibm_is_vpc.vpc.id
-  subnet_id            = var.subnets[count.index].id
-  ssh_key_ids          = [var.ssh_key_id]
-  tags                 = var.tags
-  init_script          = file("${path.module}/scripts/instance-init.sh")
-  image_name           = var.image_name
+  region               = var.region
+  ibmcloud_api_key     = var.ibmcloud_api_key
+  vpc_name             = var.vpc_name
+  vpc_subnet_count     = var.subnet_count
+  vpc_subnets          = var.subnets
   profile_name         = var.profile_name
+  ssh_key_ids          = [var.ssh_key_id]
+  flow_log_cos_bucket_name = var.flow_log_cos_bucket_name
+  kms_key_crn          = var.kms_key_crn
+  kms_enabled          = var.kms_enabled
+  init_script          = file("${path.module}/scripts/instance-init.sh")
+  create_public_ip     = true
   allow_ssh_from       = var.allow_ssh_from
+  tags                 = var.tags
+  label                = "vpn"
   security_group_rules = concat(var.security_group_rules, [
     {
       name      = "http"
@@ -99,9 +101,9 @@ resource null_resource setup_openvpn {
   }
 }
 
-resource ibm_is_security_group_network_interface_attachment under_maintenance {
-  count = local.attachment_count
-
-  security_group    = local.attachments[count.index].security_group_id
-  network_interface = local.attachments[count.index].network_interface_id
-}
+//resource ibm_is_security_group_network_interface_attachment under_maintenance {
+//  count = local.attachment_count
+//
+//  security_group    = local.attachments[count.index].security_group_id
+//  network_interface = local.attachments[count.index].network_interface_id
+//}
