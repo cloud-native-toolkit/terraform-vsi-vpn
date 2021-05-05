@@ -89,7 +89,7 @@ resource null_resource setup_openvpn {
     user        = "root"
     password    = ""
     private_key = var.ssh_private_key
-    host        = module.openvpn-server[count.index].bastion_public_ip
+    host        = module.openvpn-server.public_ips[count.index]
   }
 
   provisioner "remote-exec" {
