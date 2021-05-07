@@ -46,7 +46,7 @@ variable "ssh_private_key" {
 
 variable "image_name" {
   type        = string
-  default     = "ibm-centos-7-9-minimal-amd64-2"
+  default     = "ibm-centos-7-9-minimal-amd64-3"
   description = "Name of the image to use for the OpenVPN instance"
 }
 
@@ -63,6 +63,7 @@ variable "allow_ssh_from" {
 }
 
 variable "security_group_rules" {
+  type = list(object({}))
 //  type = list(object({
 //    name=string,
 //    direction=string,
