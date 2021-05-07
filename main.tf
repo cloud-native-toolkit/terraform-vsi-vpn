@@ -21,7 +21,7 @@ data ibm_is_vpc vpc {
 }
 
 module "openvpn-server" {
-  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.3.6"
+  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.3.7"
 
   resource_group_id    = var.resource_group_id
   region               = var.region
@@ -40,6 +40,7 @@ module "openvpn-server" {
   allow_ssh_from       = var.allow_ssh_from
   tags                 = var.tags
   label                = "vpn"
+  allow_deprecated_image = var.allow_deprecated_image
   security_group_rules = concat(var.security_group_rules, [
     {
       name      = "http"

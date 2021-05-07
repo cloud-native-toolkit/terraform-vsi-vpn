@@ -11,4 +11,5 @@ module "openvpn" {
   ssh_private_key     = module.vpcssh.private_key
   instance_count      = module.bastion.instance_count
   instance_network_ids = module.bastion.network_interface_ids
+  allow_deprecated_image = false
 }
