@@ -63,6 +63,7 @@ variable "allow_ssh_from" {
 }
 
 variable "security_group_rules" {
+  type = list(object({}))
 //  type = list(object({
 //    name=string,
 //    direction=string,
