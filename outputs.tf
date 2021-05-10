@@ -4,7 +4,7 @@ output "ids" {
 }
 
 output "names" {
-  value       = module.openvpn-server.name
+  value       = module.openvpn-server.names
   description = "ID of the OpenVPN virtual server instance"
 }
 
