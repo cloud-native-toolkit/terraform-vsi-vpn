@@ -9,4 +9,29 @@ module "openvpn-subnets" {
   gateways          = module.gateways.gateways
   _count            = 1
   label             = "openvpn"
+  acl_rules          = [{
+    name="ingress-ssh"
+    action="allow"
+    direction="inbound"
+    source="0.0.0.0/0"
+    destination="10.0.0.0/8"
+    tcp = {
+      port_min=22
+      port_max=22
+      source_port_min=22
+      source_port_max=22
+    }
+  }, {
+    name="egress-ssh"
+    action="allow"
+    direction="outbound"
+    destination="0.0.0.0/0"
+    source="10.0.0.0/8"
+    tcp = {
+      port_min=22
+      port_max=22
+      source_port_min=22
+      source_port_max=22
+    }
+  }]
 }
