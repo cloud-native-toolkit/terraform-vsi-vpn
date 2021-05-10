@@ -3,6 +3,11 @@ output "ids" {
   description = "ID of the OpenVPN virtual server instance"
 }
 
+output "names" {
+  value       = module.openvpn-server.name
+  description = "ID of the OpenVPN virtual server instance"
+}
+
 output "count" {
   value       = var.subnet_count
   description = "ID of the OpenVPN virtual server instance"

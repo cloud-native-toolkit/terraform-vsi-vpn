@@ -21,7 +21,7 @@ data ibm_is_vpc vpc {
 }
 
 module "openvpn-server" {
-  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.3.7"
+  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.3.8"
 
   resource_group_id    = var.resource_group_id
   region               = var.region
