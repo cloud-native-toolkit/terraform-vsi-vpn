@@ -96,12 +96,6 @@ variable "instance_network_ids" {
   description = "The list of network interface ids for the Bastion/jump box servers."
 }
 
-variable "flow_log_cos_bucket_name" {
-  type        = string
-  description = "Cloud Object Storage bucket id for flow logs (optional)"
-  default     = ""
-}
-
 variable "kms_enabled" {
   type        = bool
   description = "Flag indicating that the volumes should be encrypted using a KMS."

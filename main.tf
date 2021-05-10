@@ -21,7 +21,7 @@ data ibm_is_vpc vpc {
 }
 
 module "openvpn-server" {
-  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.3.8"
+  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.4.0"
 
   resource_group_id    = var.resource_group_id
   region               = var.region
@@ -32,7 +32,6 @@ module "openvpn-server" {
   image_name           = var.image_name
   profile_name         = var.profile_name
   ssh_key_id           = var.ssh_key_id
-  flow_log_cos_bucket_name = var.flow_log_cos_bucket_name
   kms_key_crn          = var.kms_key_crn
   kms_enabled          = var.kms_enabled
   init_script          = file("${path.module}/scripts/instance-init.sh")
