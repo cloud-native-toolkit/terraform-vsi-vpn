@@ -77,14 +77,16 @@ module "openvpn-server" {
   ])
 }
 
-resource null_resource setup_openvpn {
-  provisioner "file" {
-    source      = "${path.module}/scripts/openvpn-config.sh"
-    destination = "/usr/local/bin/openvpn-config.sh"
+resource null_resource print_ips {
+  provisioner "local-exec" {
+    command = "echo 'Public ips: ${jsonencode(module.openvpn-server.public_ips)}"
   }
+}
+
+resource null_resource setup_openvpn {
 
   count = var.subnet_count
-  depends_on = [module.openvpn-server]
+  depends_on = [module.openvpn-server, null_resource.print_ips]
 
   connection {
     type        = "ssh"
@@ -92,6 +94,11 @@ resource null_resource setup_openvpn {
     password    = ""
     private_key = var.ssh_private_key
     host        = module.openvpn-server.public_ips[count.index]
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/scripts/openvpn-config.sh"
+    destination = "/usr/local/bin/openvpn-config.sh"
   }
 
   provisioner "remote-exec" {
