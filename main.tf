@@ -79,7 +79,7 @@ module "openvpn-server" {
 
 resource null_resource print_ips {
   provisioner "local-exec" {
-    command = "echo 'Public ips: ${join(",",module.openvpn-server.public_ips)}"
+    command = "echo 'Public ips: ${join(",",module.openvpn-server.public_ips)}'"
   }
 }
 

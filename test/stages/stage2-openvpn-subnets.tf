@@ -14,7 +14,7 @@ module "openvpn-subnets" {
     action="allow"
     direction="inbound"
     source="0.0.0.0/0"
-    destination="10.0.0.0/8"
+    destination="0.0.0.0/0"
     tcp = {
       port_min=22
       port_max=22
@@ -26,7 +26,7 @@ module "openvpn-subnets" {
     action="allow"
     direction="outbound"
     destination="0.0.0.0/0"
-    source="10.0.0.0/8"
+    source="0.0.0.0/0"
     tcp = {
       port_min=22
       port_max=22
