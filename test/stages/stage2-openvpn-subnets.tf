@@ -5,8 +5,21 @@ module "openvpn-subnets" {
   region            = var.region
   ibmcloud_api_key  = var.ibmcloud_api_key
   vpc_name          = module.vpc.name
-  acl_id            = module.vpc.acl_id
+  vpc_id            = module.vpc.id
   gateways          = module.gateways.gateways
   _count            = 1
   label             = "openvpn"
+  acl_rules          = [{
+    name="ingress-all"
+    action="allow"
+    direction="inbound"
+    source="0.0.0.0/0"
+    destination="0.0.0.0/0"
+  }, {
+    name="egress-all"
+    action="allow"
+    direction="outbound"
+    destination="0.0.0.0/0"
+    source="0.0.0.0/0"
+  }]
 }

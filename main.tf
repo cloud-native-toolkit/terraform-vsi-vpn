@@ -21,7 +21,7 @@ data ibm_is_vpc vpc {
 }
 
 module "openvpn-server" {
-  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.3.7"
+  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.3.8"
 
   resource_group_id    = var.resource_group_id
   region               = var.region
@@ -73,18 +73,29 @@ module "openvpn-server" {
         port_min = 1194
         port_max = 1194
       }
+    },
+    {
+      name      = "dns"
+      direction = "outbound"
+      remote    = "0.0.0.0/0"
+      tcp = {
+        port_min = 53
+        port_max = 53
+      }
     }
   ])
 }
 
-resource null_resource setup_openvpn {
-  provisioner "file" {
-    source      = "${path.module}/scripts/openvpn-config.sh"
-    destination = "/usr/local/bin/openvpn-config.sh"
+resource null_resource print_ips {
+  provisioner "local-exec" {
+    command = "echo 'Public ips: ${join(",",module.openvpn-server.public_ips)}'"
   }
+}
+
+resource null_resource setup_openvpn {
 
   count = var.subnet_count
-  depends_on = [module.openvpn-server]
+  depends_on = [module.openvpn-server, null_resource.print_ips]
 
   connection {
     type        = "ssh"
@@ -92,6 +103,11 @@ resource null_resource setup_openvpn {
     password    = ""
     private_key = var.ssh_private_key
     host        = module.openvpn-server.public_ips[count.index]
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/scripts/openvpn-config.sh"
+    destination = "/usr/local/bin/openvpn-config.sh"
   }
 
   provisioner "remote-exec" {
