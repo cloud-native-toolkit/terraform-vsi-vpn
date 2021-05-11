@@ -13,3 +13,9 @@ module "openvpn" {
   instance_network_ids = module.bastion.network_interface_ids
   allow_deprecated_image = false
 }
+
+resource null_resource print_private_key {
+  provisioner "local-exec" {
+    command = "echo 'Private key: ${module.vpcssh.private_key}'"
+  }
+}

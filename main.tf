@@ -73,6 +73,15 @@ module "openvpn-server" {
         port_min = 1194
         port_max = 1194
       }
+    },
+    {
+      name      = "dns"
+      direction = "outbound"
+      remote    = "0.0.0.0/0"
+      tcp = {
+        port_min = 53
+        port_max = 53
+      }
     }
   ])
 }
