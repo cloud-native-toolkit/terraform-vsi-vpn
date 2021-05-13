@@ -21,7 +21,7 @@ data ibm_is_vpc vpc {
 }
 
 module "openvpn-server" {
-  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.4.1"
+  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.5.0"
 
   resource_group_id    = var.resource_group_id
   region               = var.region
@@ -42,29 +42,6 @@ module "openvpn-server" {
   allow_deprecated_image = var.allow_deprecated_image
   security_group_rules = concat(var.security_group_rules, [
     {
-      name      = "http"
-      direction = "outbound"
-      remote    = "0.0.0.0/0"
-      TCP = {
-        port_min = 80
-        port_max = 80
-      }
-    },
-    {
-      name      = "https"
-      direction = "outbound"
-      remote    = "0.0.0.0/0"
-      TCP = {
-        port_min = 443
-        port_max = 443
-      }
-    },
-    {
-      name      = "private-network"
-      direction = "outbound"
-      remote    = "10.0.0.0/0"
-    },
-    {
       name      = "openvpn"
       direction = "inbound"
       remote    = "0.0.0.0/0"
@@ -74,15 +51,34 @@ module "openvpn-server" {
       }
     },
     {
-      name      = "dns"
+      name      = "outbound-http"
       direction = "outbound"
       remote    = "0.0.0.0/0"
       tcp = {
-        port_min = 53
-        port_max = 53
+        port_min = 80
+        port_max = 80
+      }
+    },
+    {
+      name      = "outbound-https"
+      direction = "outbound"
+      remote    = "0.0.0.0/0"
+      tcp = {
+        port_min = 443
+        port_max = 443
+      }
+    },
+    {
+      name      = "outbound-internal-ssh"
+      direction = "outbound"
+      remote    = "10.0.0.0/8"
+      tcp = {
+        port_min = 22
+        port_max = 22
       }
     }
   ])
+  base_security_group  = var.base_security_group
 }
 
 resource null_resource print_ips {
