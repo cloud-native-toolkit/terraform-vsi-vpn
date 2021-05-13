@@ -49,6 +49,24 @@ module "openvpn-server" {
         port_min = 1194
         port_max = 1194
       }
+    },
+    {
+      name      = "outbound-http"
+      direction = "outbound"
+      remote    = "0.0.0.0/0"
+      tcp = {
+        port_min = 80
+        port_max = 80
+      }
+    },
+    {
+      name      = "outbound-https"
+      direction = "outbound"
+      remote    = "0.0.0.0/0"
+      tcp = {
+        port_min = 443
+        port_max = 443
+      }
     }
   ])
   base_security_group  = var.base_security_group
