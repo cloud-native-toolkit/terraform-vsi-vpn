@@ -67,6 +67,15 @@ module "openvpn-server" {
         port_min = 443
         port_max = 443
       }
+    },
+    {
+      name      = "outbound-internal-ssh"
+      direction = "outbound"
+      remote    = "10.0.0.0/8"
+      tcp = {
+        port_min = 22
+        port_max = 22
+      }
     }
   ])
   base_security_group  = var.base_security_group
