@@ -155,6 +155,178 @@ versions:
         description: Flag indicating that deprecated images should be allowed for use in the Virtual Server instance. If the value is `false` and the image is deprecated then the module will fail to provision
         default: true
         optional: true
+      - name: base_security_group
+        type: string
+        description: The id of the base security group to use for the VSI instance. If not provided the default VPC security group will be used.
+        default: "null"
+        optional: true
+    version: v1.4.0
+    outputs:
+      - name: ids
+        description: ID of the OpenVPN virtual server instance
+      - name: names
+        description: ID of the OpenVPN virtual server instance
+      - name: count
+        description: ID of the OpenVPN virtual server instance
+      - name: private_ips
+        description: Private IP address of the OpenVPN virtual server instance
+      - name: public_ips
+        description: Public IP address of the OpenVPN virtual server instance
+      - name: security_group_id
+        description: The id of the security group that was created
+      - name: security_group
+        description: The security group that was created
+      - name: maintenance_security_group_id
+        description: The id of the security group that was created
+      - name: maintenance_security_group
+        description: The security group that was created
+  - platforms: []
+    dependencies:
+      - id: resource_group
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-ibm-resource-group
+            version: ">= 1.0.0"
+      - id: vpc
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-ibm-vpc
+            version: ">= 1.0.0"
+      - id: subnets
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-ibm-vpc-subnets
+            version: ">= 1.0.0"
+      - id: vpcssh
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-ibm-vpc-ssh
+            version: ">= 1.0.0"
+      - id: bastion
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-vsi-bastion
+            version: ">= 1.0.0"
+      - id: kms_key
+        refs:
+          - source: github.com/cloud-native-toolkit/terraform-ibm-kms-key
+            version: ">= 0.0.1"
+        optional: true
+    variables:
+      - name: resource_group_id
+        moduleRef:
+          id: resource_group
+          output: id
+        type: string
+        description: The id of the IBM Cloud resource group where the resources will be provisioned.
+      - name: vpc_name
+        moduleRef:
+          id: vpc
+          output: name
+        type: string
+        description: The name of the existing VPC instance where the OpenVPN instance(s) will be provisioned.
+      - name: subnet_count
+        moduleRef:
+          id: subnets
+          output: count
+        type: number
+        description: The number of subnets on the vpc instance that will be used for the OpenVPN instance(s)
+      - name: subnets
+        moduleRef:
+          id: subnets
+          output: subnets
+        type: list(object({id = string, zone = string, label = string}))
+        description: The list of subnet objects where OpenVPN servers will be provisioned
+      - name: ssh_key_id
+        moduleRef:
+          id: vpcssh
+          output: id
+        type: string
+        description: The id of a key registered with the VPC
+      - name: ssh_private_key
+        moduleRef:
+          id: vpcssh
+          output: private_key
+        type: string
+        description: The private key that is paired with ssh_key_id
+      - name: instance_count
+        moduleRef:
+          id: bastion
+          output: instance_count
+        type: number
+        description: The number of Bastion/jump box instances routable by the OpenVPN server.
+      - name: instance_network_ids
+        moduleRef:
+          id: bastion
+          output: network_interface_ids
+        type: list(string)
+        description: The list of network interface ids for the Bastion/jump box servers.
+      - name: region
+        scope: global
+        type: string
+        description: The IBM Cloud region where the resources will be provisioned.
+      - name: ibmcloud_api_key
+        scope: global
+        type: string
+        description: The IBM Cloud api token
+      - name: tags
+        scope: module
+        type: list(string)
+        description: The list of tags that will be applied to the OpenVPN vsi instances.
+        default: []
+        optional: true
+      - name: image_name
+        scope: ignore
+        type: string
+        description: Name of the image to use for the OpenVPN instance
+        default: ibm-centos-7-9-minimal-amd64-3
+        optional: true
+      - name: profile_name
+        scope: ignore
+        type: string
+        description: Virtual Server Instance profile to use for the OpenVPN instance
+        default: cx2-2x4
+        optional: true
+      - name: allow_ssh_from
+        scope: ignore
+        type: string
+        description: An IP address, a CIDR block, or a single security group identifier to allow incoming SSH connection to the OpenVPN instance
+        default: 0.0.0.0/0
+        optional: true
+      - name: security_group_rules
+        scope: ignore
+        type: |-
+          list(object({
+          //    name=string,
+          //    direction=string,
+          //    remote=optional(string),
+          //    ip_version=optional(string),
+          //    tcp=optional(object({
+          //      port_min=number,
+          //      port_max=number
+          //    })),
+          //    udp=optional(object({
+          //      port_min=number,
+          //      port_max=number
+          //    })),
+          //    icmp=optional(object({
+          //
+        description: List of security group rules to set on the OpenVPN security group in addition to inbound SSH and VPC and outbound DNS, ICMP, and HTTP(s) rules
+        default: []
+        optional: true
+      - name: kms_key_crn
+        moduleRef:
+          id: kms_key
+          output: crn
+        optional: true
+        type: string
+        description: The crn of the root key in the kms instance. Required if kms_enabled is true
+        default: ""
+      - name: kms_enabled
+        type: bool
+        description: Flag indicating that the volumes should be encrypted using a KMS.
+        default: false
+        optional: true
+      - name: allow_deprecated_image
+        type: bool
+        description: Flag indicating that deprecated images should be allowed for use in the Virtual Server instance. If the value is `false` and the image is deprecated then the module will fail to provision
+        default: true
+        optional: true
     version: v1.3.1
     outputs:
       - name: ids
