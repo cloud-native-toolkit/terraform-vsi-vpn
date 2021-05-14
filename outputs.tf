@@ -37,8 +37,3 @@ output "maintenance_security_group_id" {
   description = "The id of the security group that was created"
   value       = module.openvpn-server.maintenance_security_group_id
 }
-
-output "maintenance_security_group" {
-  description = "The security group that was created"
-  value       = module.openvpn-server.maintenance_security_group
-}
