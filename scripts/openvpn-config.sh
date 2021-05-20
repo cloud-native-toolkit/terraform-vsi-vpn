@@ -237,7 +237,7 @@ function installQuestions() {
 		echo "It seems this server is behind NAT. What is its public IPv4 address or hostname?"
 		echo "We need it for the clients to connect to the server."
 
-		PUBLICIP=$(curl -s https://api.ipify.org)
+		PUBLICIP=$PUBIP
 #		until [[ $ENDPOINT != "" ]]; do
 #			read -rp "Public IPv4 address or hostname: " -e -i "$PUBLICIP" ENDPOINT
 #		done
@@ -607,6 +607,8 @@ function installQuestions() {
 	# fi
 }
 
+PUBIP=`cat /tmp/pubip.txt`
+
 function installOpenVPN() {
 	if [[ $AUTO_INSTALL == "y" ]]; then
 		# Set default choices so that no questions will be asked.
@@ -624,9 +626,9 @@ function installOpenVPN() {
 
 		# Behind NAT, we'll default to the publicly reachable IPv4/IPv6.
 		if [[ $IPV6_SUPPORT == "y" ]]; then
-			PUBLIC_IP=$(curl https://ifconfig.co)
+			PUBLIC_IP=$(curl https://iffconfig.co)
 		else
-			PUBLIC_IP=$(curl -4 https://ifconfig.co)
+			PUBLIC_IP=$(curl -4 https://iffconfig.co)
 		fi
 		#ENDPOINT=${ENDPOINT:-$PUBLIC_IP}
 		
