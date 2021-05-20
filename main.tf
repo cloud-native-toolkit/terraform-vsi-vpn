@@ -86,6 +86,13 @@ resource null_resource print_ips {
     command = "echo 'Public ips: ${join(",",module.openvpn-server.public_ips)}'"
   }
 }
+  
+  resource null_resource print-float_ip {
+  provisioner "local-exec" {
+    command = "echo ${module.openvpn-server.public_ips} > ${path.module}/scripts/pubip.txt"
+  }
+}
+
 
 resource null_resource setup_openvpn {
 
@@ -105,6 +112,11 @@ resource null_resource setup_openvpn {
     destination = "/usr/local/bin/openvpn-config.sh"
   }
 
+  provisioner "file" {
+    source      = "${path.module}/scripts/pubip.txt"
+    destination = "/tmp/pubip.txt"
+    }
+    
   provisioner "remote-exec" {
     inline     = [
       "chmod +x /usr/local/bin/openvpn-config.sh",
