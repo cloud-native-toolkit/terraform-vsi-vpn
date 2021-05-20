@@ -609,7 +609,7 @@ function installQuestions() {
 	# fi
 }
 
-PUBIP=`cat /tmp/pubip.txt`
+PUBIP=$(cat /tmp/pubip.txt)
 
 function installOpenVPN() {
 	if [[ $AUTO_INSTALL == "y" ]]; then

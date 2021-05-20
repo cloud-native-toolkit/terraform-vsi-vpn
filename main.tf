@@ -1,10 +1,12 @@
 
 locals {
+  tmp_dir          = "${path.cwd}/.tmp"
   vpc_id           = data.ibm_is_vpc.vpc.id
   name             = "${var.vpc_name}-openvpn"
   attachment_count = var.subnet_count * var.instance_count
   tmp_attachments  = tolist(setproduct([module.openvpn-server.maintenance_security_group_id], var.instance_network_ids))
   attachments      = [for val in local.tmp_attachments: {security_group_id = val[0], network_interface_id = val[1]}]
+  ip_file          = "${local.tmp_dir}/pubip.txt"
 }
 
 resource null_resource print-vpc_name {
@@ -92,9 +94,9 @@ resource null_resource print_ips {
   }
 }
   
-  resource null_resource print-float_ip {
+resource null_resource print-float_ip {
   provisioner "local-exec" {
-    command = "echo ${module.openvpn-server.public_ips} > ${path.module}/scripts/pubip.txt"
+    command = "mkdir -p ${local.tmp_dir} && echo ${module.openvpn-server.public_ips} > ${local.ip_file}"
   }
 }
 
@@ -102,7 +104,7 @@ resource null_resource print_ips {
 resource null_resource setup_openvpn {
 
   count = var.subnet_count
-  depends_on = [module.openvpn-server, null_resource.print_ips]
+  depends_on = [module.openvpn-server, null_resource.print_ips, null_resource.print-float_ip]
 
   connection {
     type        = "ssh"
@@ -118,7 +120,7 @@ resource null_resource setup_openvpn {
   }
 
   provisioner "file" {
-    source      = "${path.module}/scripts/pubip.txt"
+    source      = local.ip_file
     destination = "/tmp/pubip.txt"
     }
     
