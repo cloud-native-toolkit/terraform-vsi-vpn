@@ -78,7 +78,7 @@ resource null_resource print_ips {
   
 resource null_resource print-float_ip {
   provisioner "local-exec" {
-    command = "mkdir -p ${local.tmp_dir} && echo ${module.openvpn-server.public_ips} > ${local.ip_file}"
+    command = "mkdir -p ${local.tmp_dir} && echo ${join(",", module.openvpn-server.public_ips)} > ${local.ip_file}"
   }
 }
 
