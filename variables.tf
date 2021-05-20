@@ -46,14 +46,14 @@ variable "ssh_private_key" {
 
 variable "image_name" {
   type        = string
-  default     = "ibm-centos-7-9-minimal-amd64-3"
+  default     = "ibm-ubuntu-20-04-minimal-amd64-2"
   description = "Name of the image to use for the OpenVPN instance"
 }
 
 variable "profile_name" {
   type        = string
   description = "Virtual Server Instance profile to use for the OpenVPN instance"
-  default     = "cx2-2x4"
+  default     = "bx2-2x8"
 }
 
 variable "allow_ssh_from" {
