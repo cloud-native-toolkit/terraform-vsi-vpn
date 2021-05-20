@@ -173,6 +173,7 @@ private-address: fd42:42:42:42::/112
 private-address: 172.16.0.0/12
 private-address: 192.168.0.0/16
 private-address: 169.254.0.0/16
+private-address: 166.8.0.0/14
 private-address: fd00::/8
 private-address: fe80::/10
 private-address: 127.0.0.0/8
@@ -194,6 +195,7 @@ private-address: fd42:42:42:42::/112
 private-address: 172.16.0.0/12
 private-address: 192.168.0.0/16
 private-address: 169.254.0.0/16
+private-address: 166.8.0.0/14
 private-address: fd00::/8
 private-address: fe80::/10
 private-address: 127.0.0.0/8

@@ -76,6 +76,11 @@ module "openvpn-server" {
         port_min = 22
         port_max = 22
       }
+    },
+    {
+      name      = "outbound-roks-private"
+      direction = "outbound"
+      remote    = "166.8.0.0/14"
     }
   ])
   base_security_group  = var.base_security_group
