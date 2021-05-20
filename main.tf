@@ -1,10 +1,12 @@
 
 locals {
+  tmp_dir          = "${path.cwd}/.tmp"
   vpc_id           = data.ibm_is_vpc.vpc.id
   name             = "${var.vpc_name}-openvpn"
   attachment_count = var.subnet_count * var.instance_count
   tmp_attachments  = tolist(setproduct([module.openvpn-server.maintenance_security_group_id], var.instance_network_ids))
   attachments      = [for val in local.tmp_attachments: {security_group_id = val[0], network_interface_id = val[1]}]
+  ip_file          = "${local.tmp_dir}/pubip.txt"
 }
 
 resource null_resource print-vpc_name {
@@ -51,24 +53,6 @@ module "openvpn-server" {
       }
     },
     {
-      name      = "outbound-http"
-      direction = "outbound"
-      remote    = "0.0.0.0/0"
-      tcp = {
-        port_min = 80
-        port_max = 80
-      }
-    },
-    {
-      name      = "outbound-https"
-      direction = "outbound"
-      remote    = "0.0.0.0/0"
-      tcp = {
-        port_min = 443
-        port_max = 443
-      }
-    },
-    {
       name      = "outbound-internal-ssh"
       direction = "outbound"
       remote    = "10.0.0.0/8"
@@ -91,11 +75,18 @@ resource null_resource print_ips {
     command = "echo 'Public ips: ${join(",",module.openvpn-server.public_ips)}'"
   }
 }
+  
+resource null_resource print-float_ip {
+  provisioner "local-exec" {
+    command = "mkdir -p ${local.tmp_dir} && echo ${join(",", module.openvpn-server.public_ips)} > ${local.ip_file}"
+  }
+}
+
 
 resource null_resource setup_openvpn {
 
   count = var.subnet_count
-  depends_on = [module.openvpn-server, null_resource.print_ips]
+  depends_on = [module.openvpn-server, null_resource.print_ips, null_resource.print-float_ip]
 
   connection {
     type        = "ssh"
@@ -110,6 +101,11 @@ resource null_resource setup_openvpn {
     destination = "/usr/local/bin/openvpn-config.sh"
   }
 
+  provisioner "file" {
+    source      = local.ip_file
+    destination = "/tmp/pubip.txt"
+    }
+    
   provisioner "remote-exec" {
     inline     = [
       "chmod +x /usr/local/bin/openvpn-config.sh",
