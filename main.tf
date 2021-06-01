@@ -82,11 +82,23 @@ resource null_resource print-float_ip {
   }
 }
 
+data ibm_is_subnet subnet {
+  count = var.subnet_count > 0 ? 1 : 0
+
+  identifier = var.subnets[0].id
+}
+
+resource null_resource open_acl_rules {
+  count = var.subnet_count > 0 ? 1 : 0
+
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/open-acl-rules.sh ${data.ibm_is_subnet.subnet[0].network_acl}"
+  }
+}
 
 resource null_resource setup_openvpn {
-
   count = var.subnet_count
-  depends_on = [module.openvpn-server, null_resource.print_ips, null_resource.print-float_ip]
+  depends_on = [module.openvpn-server, null_resource.print_ips, null_resource.print-float_ip, null_resource.open_acl_rules]
 
   connection {
     type        = "ssh"
