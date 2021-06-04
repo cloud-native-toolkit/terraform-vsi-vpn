@@ -7,6 +7,7 @@ locals {
   tmp_attachments  = tolist(setproduct([module.openvpn-server.maintenance_security_group_id], var.instance_network_ids))
   attachments      = [for val in local.tmp_attachments: {security_group_id = val[0], network_interface_id = val[1]}]
   ip_file          = "${local.tmp_dir}/pubip.txt"
+  easy_rsa_file    = "${local.tmp_dir}/easy-rsa.tgz"
 }
 
 resource null_resource print-vpc_name {
@@ -100,9 +101,17 @@ resource null_resource open_acl_rules {
   }
 }
 
+resource null_resource curl_easy_rsa {
+  depends_on = [null_resource.print-float_ip]
+
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/download-easy-rsa.sh ${local.easy_rsa_file}"
+  }
+}
+
 resource null_resource setup_openvpn {
   count = var.subnet_count
-  depends_on = [module.openvpn-server, null_resource.print_ips, null_resource.print-float_ip, null_resource.open_acl_rules]
+  depends_on = [module.openvpn-server, null_resource.print_ips, null_resource.print-float_ip, null_resource.open_acl_rules, null_resource.curl_easy_rsa]
 
   connection {
     type        = "ssh"
@@ -118,10 +127,15 @@ resource null_resource setup_openvpn {
   }
 
   provisioner "file" {
+    source      = local.easy_rsa_file
+    destination = "/tmp/easy-rsa.tgz"
+  }
+
+  provisioner "file" {
     source      = local.ip_file
     destination = "/tmp/pubip.txt"
-    }
-    
+  }
+
   provisioner "remote-exec" {
     inline     = [
       "chmod +x /usr/local/bin/openvpn-config.sh",
