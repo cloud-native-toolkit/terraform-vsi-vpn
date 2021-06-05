@@ -24,7 +24,7 @@ data ibm_is_vpc vpc {
 }
 
 module "openvpn-server" {
-  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.6.0"
+  source = "github.com/cloud-native-toolkit/terraform-vsi-bastion.git?ref=v1.7.0"
 
   resource_group_id    = var.resource_group_id
   region               = var.region
@@ -69,6 +69,19 @@ module "openvpn-server" {
     }
   ])
   base_security_group  = var.base_security_group
+  acl_rules = [{
+    name = "allow-all-ingress"
+    action = "allow"
+    direction = "inbound"
+    source = "0.0.0.0/0"
+    destination = "0.0.0.0/0"
+  }, {
+    name = "allow-all-egress"
+    action = "allow"
+    direction = "outbound"
+    source = "0.0.0.0/0"
+    destination = "0.0.0.0/0"
+  }]
 }
 
 resource null_resource print_ips {
@@ -89,18 +102,6 @@ data ibm_is_subnet subnet {
   identifier = var.subnets[0].id
 }
 
-resource null_resource open_acl_rules {
-  count = var.subnet_count > 0 ? 1 : 0
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/open-acl-rules.sh '${data.ibm_is_subnet.subnet[0].network_acl}' '${var.region}' '${var.resource_group_id}'"
-
-    environment = {
-      IBMCLOUD_API_KEY = var.ibmcloud_api_key
-    }
-  }
-}
-
 resource null_resource curl_easy_rsa {
   depends_on = [null_resource.print-float_ip]
 
@@ -111,7 +112,7 @@ resource null_resource curl_easy_rsa {
 
 resource null_resource setup_openvpn {
   count = var.subnet_count
-  depends_on = [module.openvpn-server, null_resource.print_ips, null_resource.print-float_ip, null_resource.open_acl_rules, null_resource.curl_easy_rsa]
+  depends_on = [module.openvpn-server, null_resource.print_ips, null_resource.print-float_ip, null_resource.curl_easy_rsa]
 
   connection {
     type        = "ssh"
